@@ -21,6 +21,6 @@ you can use [react-native-fs](https://github.com/johanneslumpe/react-native-fs) 
     });
     download.promise.then(result => {
         if(result.statusCode == 200){
-            NativeModules.InstallApk.install(filePath);
+            NativeModules.InstallApk.install(filePath, 'put-here-the-provider');
         }
     });

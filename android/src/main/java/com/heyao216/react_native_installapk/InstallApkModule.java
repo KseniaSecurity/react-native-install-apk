@@ -30,7 +30,7 @@ public class InstallApkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void install(String path) {
+    public void install(String path, String provider) {
         String cmd = "chmod 777 " +path;
         try {
             Runtime.getRuntime().exec(cmd);
@@ -42,7 +42,7 @@ public class InstallApkModule extends ReactContextBaseJavaModule {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Uri uri;
         if(Build.VERSION.SDK_INT >= 24) {
-          uri = FileProvider.getUriForFile(_context, "com.mi.shoppe.provider", apkFile);
+          uri = FileProvider.getUriForFile(_context, provider, apkFile);
           intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         } else{
           uri = Uri.fromFile(apkFile);
