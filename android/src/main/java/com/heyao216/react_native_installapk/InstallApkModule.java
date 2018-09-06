@@ -59,12 +59,41 @@ public class InstallApkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void silentInstall(String path, String packageName, Promise promise) {
+    public void silentInstall(String path, String packageName, final Promise promise) {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             try {
                 File file = new File(path);
                 FileInputStream inputStream = new FileInputStream(file);
                 PackageInstaller packageInstaller = _context.getPackageManager().getPackageInstaller();
+                packageInstaller.registerSessionCallback(new PackageInstaller.SessionCallback() {
+                    @Override
+                    public void onCreated(int sessionId) {
+
+                    }
+
+                    @Override
+                    public void onBadgingChanged(int sessionId) {
+
+                    }
+
+                    @Override
+                    public void onActiveChanged(int sessionId, boolean active) {
+
+                    }
+
+                    @Override
+                    public void onProgressChanged(int sessionId, float progress) {
+
+                    }
+
+                    @Override
+                    public void onFinished(int sessionId, boolean success) {
+                        if (success)
+                            promise.resolve(true);
+                        else
+                            promise.reject("error", "boh");
+                    }
+                });
                 int sessionId = 0;
                 sessionId = packageInstaller.createSession(new PackageInstaller
                         .SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL));
@@ -86,8 +115,6 @@ public class InstallApkModule extends ReactContextBaseJavaModule {
                 out.close();
 
                 session.commit(createIntentSender(sessionId));
-
-                promise.resolve(true);
             } catch (IOException e) {
                 promise.reject("error", e);
             }
