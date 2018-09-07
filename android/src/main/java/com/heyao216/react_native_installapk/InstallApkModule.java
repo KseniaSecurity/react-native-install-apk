@@ -59,7 +59,7 @@ public class InstallApkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void silentInstall(String path, String packageName, final Promise promise) {
+    public void silentInstall(String path, String packageName, String activityName, final Promise promise) {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             try {
                 File file = new File(path);
@@ -91,7 +91,7 @@ public class InstallApkModule extends ReactContextBaseJavaModule {
                         if (success)
                             promise.resolve(true);
                         else
-                            promise.reject("error", "boh");
+                            promise.reject("error", "install error");
                     }
                 });
                 int sessionId = 0;
@@ -114,18 +114,20 @@ public class InstallApkModule extends ReactContextBaseJavaModule {
                 inputStream.close();
                 out.close();
 
-                session.commit(createIntentSender(sessionId));
+                session.commit(createIntentSender(sessionId, packageName, activityName));
             } catch (IOException e) {
                 promise.reject("error", e);
             }
         }
     }
 
-    private IntentSender createIntentSender(int sessionId) {
+    private IntentSender createIntentSender(int sessionId, String packageName, String activityName) {
+        Intent intent = new Intent(packageName);
+        intent.putExtra("ACTIVITY_NAME", activityName);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 _context,
                 sessionId,
-                new Intent(Intent.ACTION_MY_PACKAGE_REPLACED),
+                intent,
                 0);
         return pendingIntent.getIntentSender();
     }
